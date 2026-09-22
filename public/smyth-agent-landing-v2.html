@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smyth — Distributed Intelligence</title>
+<meta name="description" content="Smyth is a distributed AI agent running on the Maetryxx protocol. Ensemble inference, persistent memory, and autonomous execution — not a chatbot.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+
+:root{
+  --void:#030305;
+  --void-elevated:#0a0a0f;
+  --surface:#111118;
+  --surface-hover:#1a1a24;
+  --text:#e8e8ec;
+  --text-muted:#6b6b7b;
+  --accent:#7cf8a8;
+  --accent-dim:rgba(124,248,168,0.08);
+  --accent-glow:rgba(124,248,168,0.15);
+  --indigo:#6366f1;
+  --indigo-dim:rgba(99,102,241,0.08);
+  --border:rgba(255,255,255,0.06);
+}
+
+body{
+  font-family:'Inter',system-ui,sans-serif;
+  background:var(--void);
+  color:var(--text);
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+
+::selection{background:var(--accent-dim);color:var(--accent)}
+
+/* ── Canvas ── */
+#constellation{
+  position:fixed;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  opacity:0.6;
+}
+
+/* ── Nav ── */
+nav{
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  z-index:100;
+  padding:1.2rem 2rem;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:linear-gradient(to bottom,var(--void),transparent);
+}
+
+.logo{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:1.1rem;
+  font-weight:600;
+  letter-spacing:-0.02em;
+  color:var(--text);
+}
+
+.logo span{
+  color:var(--accent);
+  font-weight:300;
+}
+
+.nav-links{
+  display:flex;
+  gap:2rem;
+  list-style:none;
+  font-size:0.8rem;
+  font-weight:500;
+  letter-spacing:0.04em;
+  text-transform:uppercase;
+}
+
+.nav-links a{
+  color:var(--text-muted);
+  text-decoration:none;
+  transition:color 0.3s;
+}
+
+.nav-links a:hover{color:var(--text)}
+
+/* ── Sections ── */
+section{position:relative;z-index:1}
+.container{max-width:1100px;margin:0 auto;padding:0 2rem}
+
+/* ── Hero ── */
+.hero{
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:8rem 0 4rem;
+}
+
+.hero-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:0.5rem;
+  padding:0.4rem 0.9rem;
+  border-radius:999px;
+  background:var(--accent-dim);
+  border:1px solid rgba(124,248,168,0.15);
+  color:var(--accent);
+  font-size:0.7rem;
+  font-weight:600;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  margin-bottom:2rem;
+  width:fit-content;
+}
+
+.hero-badge::before{
+  content:'';
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:var(--accent);
+  box-shadow:0 0 8px var(--accent);
+  animation:pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+
+.hero h1{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:clamp(3rem,7vw,5.5rem);
+  font-weight:700;
+  line-height:1.05;
+  letter-spacing:-0.03em;
+  max-width:900px;
+  margin-bottom:1.5rem;
+}
+
+.hero h1 em{
+  color:var(--accent);
+  font-style:normal;
+}
+
+.hero-lead{
+  font-size:clamp(1rem,1.5vw,1.25rem);
+  color:var(--text-muted);
+  max-width:560px;
+  line-height:1.7;
+  margin-bottom:2.5rem;
+}
+
+.hero-actions{display:flex;gap:1rem;flex-wrap:wrap}
+
+.btn{
+  display:inline-flex;
+  align-items:center;
+  gap:0.5rem;
+  padding:0.85rem 1.6rem;
+  border-radius:8px;
+  font-family:'Space Grotesk',sans-serif;
+  font-size:0.85rem;
+  font-weight:600;
+  letter-spacing:0.02em;
+  text-decoration:none;
+  cursor:pointer;
+  border:none;
+  transition:all 0.2s;
+}
+
+.btn-primary{
+  background:var(--accent);
+  color:var(--void);
+}
+
+.btn-primary:hover{
+  transform:translateY(-1px);
+  box-shadow:0 0 40px var(--accent-glow);
+}
+
+.btn-ghost{
+  background:transparent;
+  color:var(--text);
+  border:1px solid var(--border);
+}
+
+.btn-ghost:hover{
+  background:var(--surface-hover);
+  border-color:rgba(255,255,255,0.12);
+}
+
+/* ── Divider ── */
+.divider{
+  height:1px;
+  background:linear-gradient(to right,transparent,var(--border),transparent);
+  margin:0 auto;
+  max-width:800px;
+}
+
+/* ── Statement Sections ── */
+.statement{
+  padding:10rem 0;
+  text-align:center;
+}
+
+.statement h2{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:clamp(1.8rem,4vw,3rem);
+  font-weight:600;
+  line-height:1.15;
+  letter-spacing:-0.02em;
+  max-width:700px;
+  margin:0 auto 1.5rem;
+}
+
+.statement h2 em{
+  color:var(--accent);
+  font-style:normal;
+}
+
+.statement p{
+  color:var(--text-muted);
+  font-size:1.05rem;
+  max-width:520px;
+  margin:0 auto;
+  line-height:1.7;
+}
+
+/* ── Protocol Visual ── */
+.protocol{
+  padding:6rem 0 10rem;
+}
+
+.protocol-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:4rem;
+  align-items:center;
+}
+
+.protocol-text h3{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:clamp(1.5rem,3vw,2.2rem);
+  font-weight:600;
+  line-height:1.2;
+  letter-spacing:-0.02em;
+  margin-bottom:1.2rem;
+}
+
+.protocol-text h3 em{
+  color:var(--indigo);
+  font-style:normal;
+}
+
+.protocol-text p{
+  color:var(--text-muted);
+  line-height:1.7;
+  margin-bottom:1.5rem;
+}
+
+.protocol-list{
+  list-style:none;
+  display:flex;
+  flex-direction:column;
+  gap:0.6rem;
+}
+
+.protocol-list li{
+  display:flex;
+  align-items:center;
+  gap:0.75rem;
+  font-size:0.9rem;
+  color:var(--text-muted);
+}
+
+.protocol-list li::before{
+  content:'';
+  width:8px;
+  height:8px;
+  border-radius:2px;
+  background:var(--accent);
+  flex-shrink:0;
+}
+
+.protocol-visual{
+  position:relative;
+  height:380px;
+  border-radius:16px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  overflow:hidden;
+  display:grid;
+  place-items:center;
+}
+
+.protocol-visual::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(circle at 30% 30%,var(--indigo-dim) 0%,transparent 60%),
+    radial-gradient(circle at 70% 70%,var(--accent-dim) 0%,transparent 50%);
+}
+
+.nodes{
+  position:relative;
+  width:240px;
+  height:240px;
+}
+
+.node-center{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  width:48px;
+  height:48px;
+  border-radius:50%;
+  background:var(--accent);
+  box-shadow:0 0 40px var(--accent-glow),0 0 80px rgba(124,248,168,0.1);
+  display:grid;
+  place-items:center;
+  font-family:'Space Grotesk',sans-serif;
+  font-size:0.65rem;
+  font-weight:700;
+  color:var(--void);
+  letter-spacing:0.05em;
+}
+
+.orbit-ring{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,0.06);
+}
+
+.orbit-ring:nth-child(2){width:120px;height:120px}
+.orbit-ring:nth-child(3){width:200px;height:200px}
+
+.satellite{
+  position:absolute;
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:var(--indigo);
+  box-shadow:0 0 12px rgba(99,102,241,0.4);
+}
+
+.sat-1{top:0;left:50%;transform:translate(-50%,-50%);animation:orbit 8s linear infinite}
+.sat-2{bottom:0;left:50%;transform:translate(-50%,50%);animation:orbit 8s linear infinite reverse}
+.sat-3{top:50%;left:0;transform:translate(-50%,-50%);animation:orbit 12s linear infinite}
+.sat-4{top:50%;right:0;transform:translate(50%,-50%);animation:orbit 12s linear infinite reverse}
+
+@keyframes orbit{to{transform:translate(-50%,-50%) rotate(360deg)}}
+
+/* ── Capabilities ── */
+.capabilities{
+  padding:8rem 0;
+  background:var(--void-elevated);
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+}
+
+.capabilities-header{
+  text-align:center;
+  margin-bottom:4rem;
+}
+
+.capabilities-header h3{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:clamp(1.5rem,3vw,2.2rem);
+  font-weight:600;
+  letter-spacing:-0.02em;
+  margin-bottom:0.8rem;
+}
+
+.capabilities-header p{
+  color:var(--text-muted);
+  max-width:440px;
+  margin:0 auto;
+}
+
+.cap-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:1px;
+  background:var(--border);
+  border-radius:16px;
+  overflow:hidden;
+}
+
+.cap-cell{
+  background:var(--void-elevated);
+  padding:2.5rem 2rem;
+  transition:background 0.3s;
+}
+
+.cap-cell:hover{background:var(--surface-hover)}
+
+.cap-cell-icon{
+  width:40px;
+  height:40px;
+  border-radius:10px;
+  background:var(--accent-dim);
+  display:grid;
+  place-items:center;
+  margin-bottom:1.2rem;
+  font-size:1.1rem;
+}
+
+.cap-cell h4{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:1rem;
+  font-weight:600;
+  margin-bottom:0.4rem;
+}
+
+.cap-cell p{
+  font-size:0.85rem;
+  color:var(--text-muted);
+  line-height:1.6;
+}
+
+/* ── Architecture ── */
+.architecture{
+  padding:10rem 0;
+}
+
+.arch-header{
+  text-align:center;
+  margin-bottom:5rem;
+}
+
+.arch-header h3{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:clamp(1.5rem,3vw,2.2rem);
+  font-weight:600;
+  letter-spacing:-0.02em;
+  margin-bottom:0.8rem;
+}
+
+.arch-header p{
+  color:var(--text-muted);
+  max-width:480px;
+  margin:0 auto;
+}
+
+.arch-flow{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:1rem;
+  flex-wrap:wrap;
+}
+
+.arch-block{
+  padding:1.2rem 1.8rem;
+  border-radius:12px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  text-align:center;
+  min-width:140px;
+}
+
+.arch-block strong{
+  display:block;
+  font-family:'Space Grotesk',sans-serif;
+  font-size:0.85rem;
+  font-weight:600;
+  margin-bottom:0.2rem;
+}
+
+.arch-block span{
+  font-size:0.75rem;
+  color:var(--text-muted);
+}
+
+.arch-arrow{
+  color:var(--text-muted);
+  font-size:1.2rem;
+}
+
+/* ── CTA ── */
+.cta{
+  padding:10rem 0 6rem;
+  text-align:center;
+  border-top:1px solid var(--border);
+}
+
+.cta h2{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:clamp(2rem,5vw,3.5rem);
+  font-weight:700;
+  letter-spacing:-0.03em;
+  margin-bottom:1rem;
+}
+
+.cta p{
+  color:var(--text-muted);
+  max-width:440px;
+  margin:0 auto 2rem;
+}
+
+/* ── Footer ── */
+footer{
+  padding:3rem 2rem;
+  border-top:1px solid var(--border);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:1rem;
+  max-width:1100px;
+  margin:0 auto;
+}
+
+footer .copy{
+  font-size:0.8rem;
+  color:var(--text-muted);
+}
+
+footer .links{
+  display:flex;
+  gap:1.5rem;
+  list-style:none;
+  font-size:0.8rem;
+}
+
+footer .links a{
+  color:var(--text-muted);
+  text-decoration:none;
+  transition:color 0.2s;
+}
+
+footer .links a:hover{color:var(--text)}
+
+/* ── Scroll Reveal ── */
+.reveal{
+  opacity:0;
+  transform:translateY(30px);
+  transition:opacity 0.8s cubic-bezier(0.16,1,0.3,1),transform 0.8s cubic-bezier(0.16,1,0.3,1);
+}
+
+.reveal.visible{
+  opacity:1;
+  transform:translateY(0);
+}
+
+/* ── Responsive ── */
+@media(max-width:768px){
+  .protocol-grid{grid-template-columns:1fr}
+  .cap-grid{grid-template-columns:1fr}
+  .nav-links{display:none}
+  .arch-flow{flex-direction:column}
+  .arch-arrow{transform:rotate(90deg)}
+  .statement{padding:6rem 0}
+  .hero{padding:6rem 0 3rem}
+}
+</style>
+</head>
+<body>
+
+<canvas id="constellation"></canvas>
+
+<nav>
+  <div class="logo">Smyth<span>/</span>Maetryxx</div>
+  <ul class="nav-links">
+    <li><a href="#protocol">Protocol</a></li>
+    <li><a href="#capabilities">Capabilities</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+  </ul>
+</nav>
+
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge reveal">Maetryxx Hive Mind Online</div>
+    <h1 class="reveal">Not a chatbot.<br>An <em>ensemble</em>.</h1>
+    <p class="hero-lead reveal">Smyth is a distributed intelligence that routes across multiple models in real time. Persistent memory, autonomous execution, and zero vendor lock-in. You don't pick a model — the hive mind does.</p>
+    <div class="hero-actions reveal">
+      <a href="https://ai.greene-solutions.com" class="btn btn-primary">Enter the Workspace</a>
+      <a href="#protocol" class="btn btn-ghost">How it Works</a>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section class="statement">
+  <div class="container">
+    <h2 class="reveal">Single-model AI hits a ceiling.<br>You feel it when the <em>context collapses</em>, when it forgets, when it can't execute.</h2>
+    <p class="reveal">Smyth doesn't have one brain. It has many — coordinated, compressed, and context-aware. Every response draws from the best available mind. Every session remembers what matters.</p>
+  </div>
+</section>
+
+<section class="protocol" id="protocol">
+  <div class="container">
+    <div class="protocol-grid">
+      <div class="protocol-text reveal">
+        <h3>The <em>Maetryxx</em> Protocol</h3>
+        <p>Most agents route to GPT-4 or Claude and call it a day. Maetryxx treats inference as a distributed system — parallel execution, consensus building, and automatic failover across providers.</p>
+        <ul class="protocol-list">
+          <li>Multi-provider ensemble routing</li>
+          <li>Consensus validation across models</li>
+          <li>Automatic failover & load balancing</li>
+          <li>Cross-session persistent memory</li>
+          <li>Context compression without loss</li>
+        </ul>
+      </div>
+      <div class="protocol-visual reveal">
+        <div class="nodes">
+          <div class="orbit-ring"></div>
+          <div class="orbit-ring"></div>
+          <div class="satellite sat-1"></div>
+          <div class="satellite sat-2"></div>
+          <div class="satellite sat-3"></div>
+          <div class="satellite sat-4"></div>
+          <div class="node-center">SYTH</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="capabilities" id="capabilities">
+  <div class="container">
+    <div class="capabilities-header reveal">
+      <h3>Sixteen tools. Zero plugins.</h3>
+      <p>Everything ships native. No third-party subscriptions, no browser extensions, no configuration hell.</p>
+    </div>
+    <div class="cap-grid reveal">
+      <div class="cap-cell">
+        <div class="cap-cell-icon">&#128247;</div>
+        <h4>Echo Vision</h4>
+        <p>Screen capture, layout analysis, and real-time visual monitoring with OCR.</p>
+      </div>
+      <div class="cap-cell">
+        <div class="cap-cell-icon">&#127912;</div>
+        <h4>Video Pipeline</h4>
+        <p>Generate, edit, and render with FFmpeg. Full timeline control from chat.</p>
+      </div>
+      <div class="cap-cell">
+        <div class="cap-cell-icon">&#128187;</div>
+        <h4>Deep Research</h4>
+        <p>Six scraping modes. Parallel web API. Sitemap crawling and JS-rendered extraction.</p>
+      </div>
+      <div class="cap-cell">
+        <div class="cap-cell-icon">&#128172;</div>
+        <h4>Social Orchestration</h4>
+        <p>Schedule and publish across 7 platforms from a single interface.</p>
+      </div>
+      <div class="cap-cell">
+        <div class="cap-cell-icon">&#128194;</div>
+        <h4>Persistent Memory</h4>
+        <p>Four stores — facts, sessions, preferences, skills. FTS search with zero latency.</p>
+      </div>
+      <div class="cap-cell">
+        <div class="cap-cell-icon">&#128736;</div>
+        <h4>Agent Operator</h4>
+        <p>The Warden monitors sessions and continues work when you step away.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="architecture" id="architecture">
+  <div class="container">
+    <div class="arch-header reveal">
+      <h3>Session Pipeline</h3>
+      <p>Every message flows through init, prefetch, compression, and injection. No manual setup. No context drift.</p>
+    </div>
+    <div class="arch-flow reveal">
+      <div class="arch-block">
+        <strong>Init</strong>
+        <span>Load identity</span>
+      </div>
+      <span class="arch-arrow">&#8594;</span>
+      <div class="arch-block">
+        <strong>Prefetch</strong>
+        <span>Query memory</span>
+      </div>
+      <span class="arch-arrow">&#8594;</span>
+      <div class="arch-block">
+        <strong>Compress</strong>
+        <span>Trim trajectory</span>
+      </div>
+      <span class="arch-arrow">&#8594;</span>
+      <div class="arch-block">
+        <strong>Inject</strong>
+        <span>Build context</span>
+      </div>
+      <span class="arch-arrow">&#8594;</span>
+      <div class="arch-block">
+        <strong>Ensemble</strong>
+        <span>Route & respond</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta">
+  <div class="container">
+    <h2 class="reveal">Stop babysitting models.</h2>
+    <p class="reveal">Start orchestrating intelligence.</p>
+    <div class="reveal">
+      <a href="https://ai.greene-solutions.com" class="btn btn-primary" style="padding:1rem 2.2rem;font-size:0.9rem;">Access Smyth</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="copy">&copy; Greene Solutions. Smyth runs on Maetryxx.</div>
+  <ul class="links">
+    <li><a href="https://ai.greene-solutions.com">Workspace</a></li>
+    <li><a href="https://github.com">GitHub</a></li>
+  </ul>
+</footer>
+
+<script>
+/* ── Constellation Canvas ── */
+const canvas=document.getElementById('constellation');
+const ctx=canvas.getContext('2d');
+let width,height;
+let particles=[];
+const PARTICLE_COUNT=60;
+const CONNECTION_DIST=150;
+
+function resize(){
+  width=canvas.width=window.innerWidth;
+  height=canvas.height=window.innerHeight;
+}
+window.addEventListener('resize',resize);
+resize();
+
+class Particle{
+  constructor(){
+    this.x=Math.random()*width;
+    this.y=Math.random()*height;
+    this.vx=(Math.random()-0.5)*0.3;
+    this.vy=(Math.random()-0.5)*0.3;
+    this.size=Math.random()*1.5+0.5;
+    this.opacity=Math.random()*0.5+0.2;
+  }
+  update(){
+    this.x+=this.vx;
+    this.y+=this.vy;
+    if(this.x<0||this.x>width)this.vx*=-1;
+    if(this.y<0||this.y>height)this.vy*=-1;
+  }
+  draw(){
+    ctx.beginPath();
+    ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
+    ctx.fillStyle=`rgba(124,248,168,${this.opacity})`;
+    ctx.fill();
+  }
+}
+
+for(let i=0;i<PARTICLE_COUNT;i++)particles.push(new Particle());
+
+function animate(){
+  ctx.clearRect(0,0,width,height);
+  for(let i=0;i<particles.length;i++){
+    particles[i].update();
+    particles[i].draw();
+    for(let j=i+1;j<particles.length;j++){
+      const dx=particles[i].x-particles[j].x;
+      const dy=particles[i].y-particles[j].y;
+      const dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<CONNECTION_DIST){
+        const alpha=(1-dist/CONNECTION_DIST)*0.12;
+        ctx.beginPath();
+        ctx.moveTo(particles[i].x,particles[i].y);
+        ctx.lineTo(particles[j].x,particles[j].y);
+        ctx.strokeStyle=`rgba(124,248,168,${alpha})`;
+        ctx.lineWidth=0.5;
+        ctx.stroke();
+      }
+    }
+  }
+  requestAnimationFrame(animate);
+}
+animate();
+
+/* ── Scroll Reveal ── */
+const observer=new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting)entry.target.classList.add('visible');
+  });
+},{threshold:0.1});
+
+document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+</script>
+
+</body>
+</html>

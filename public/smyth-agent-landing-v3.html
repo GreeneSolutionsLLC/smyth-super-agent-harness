@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SMYTH — Maetryxx Hive Mind</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --void: #000000;
+  --deep-void: #010103;
+  --electric-mint: #7cf8a8;
+}
+html { scroll-behavior: smooth; }
+body {
+  background: var(--void);
+  color: #e5e5e5;
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+  cursor: none;
+}
+.custom-cursor {
+  position: fixed;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--electric-mint);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  mix-blend-mode: difference;
+  transition: width 0.2s, height 0.2s;
+}
+.cursor-trail {
+  position: fixed;
+  width: 8px;
+  height: 8px;
+  background: var(--electric-mint);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0.6;
+}
+.video-hero {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+.video-hero video {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  min-width: 100%;
+  min-height: 100%;
+  transform: translate(-50%, -50%);
+  object-fit: cover;
+  filter: contrast(1.15) saturate(1.2);
+}
+.video-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 90% 80% at center, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.5) 60%, rgba(0,0,0,0.85) 100%),
+    linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.1) 40%, rgba(0,0,0,0.5) 100%);
+  z-index: 2;
+}
+.hero-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 3;
+  text-align: center;
+  padding: 2rem;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4), 0 0 1px rgba(0, 0, 0, 0.5);
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--electric-mint);
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: #ffffff;
+  background: rgba(124, 248, 168, 0.08);
+  margin-bottom: 2rem;
+  animation: pulse 2s ease-in-out infinite;
+  text-shadow:
+    0 0 4px #ffffff,
+    0 0 10px var(--electric-mint),
+    0 0 20px var(--electric-mint);
+}
+.badge-dot {
+  width: 8px;
+  height: 8px;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow:
+    0 0 6px #ffffff,
+    0 0 12px var(--electric-mint),
+    0 0 24px var(--electric-mint);
+  animation: blink 1s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(124, 248, 168, 0.4); }
+  50% { box-shadow: 0 0 0 10px rgba(124, 248, 168, 0); }
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+.hero-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(2.5rem, 8vw, 6rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: #ffffff;
+  margin-bottom: 1.5rem;
+  text-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.5),
+    0 0 8px rgba(124, 248, 168, 0.35),
+    0 0 16px rgba(124, 248, 168, 0.25);
+}
+.hero-lead {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  color: #ffffff;
+  max-width: 600px;
+  line-height: 1.6;
+  margin-bottom: 2.5rem;
+  font-weight: 400;
+  text-shadow:
+    0 1px 4px rgba(0, 0, 0, 0.6),
+    0 0 6px rgba(124, 248, 168, 0.2);
+}
+.cta-group {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.btn {
+  padding: 1rem 2rem;
+  border-radius: 4px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+}
+.btn-primary {
+  background: var(--electric-mint);
+  color: var(--void);
+  border: none;
+  box-shadow:
+    0 0 12px rgba(124, 248, 168, 0.4),
+    0 0 28px rgba(124, 248, 168, 0.3);
+}
+.btn-primary:hover {
+  background: #5ce68a;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(124, 248, 168, 0.3);
+}
+.btn-secondary {
+  background: transparent;
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.3);
+}
+.btn-secondary:hover {
+  border-color: var(--electric-mint);
+  color: var(--electric-mint);
+}
+.scroll-indicator {
+  position: absolute;
+  bottom: 3rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  opacity: 0.6;
+}
+.scroll-line {
+  width: 1px;
+  height: 60px;
+  background: linear-gradient(to bottom, var(--electric-mint), transparent);
+  animation: scrollDown 2s ease-in-out infinite;
+}
+@keyframes scrollDown {
+  0% { transform: scaleY(0); transform-origin: top; }
+  50% { transform: scaleY(1); transform-origin: top; }
+  50.1% { transform: scaleY(1); transform-origin: bottom; }
+  100% { transform: scaleY(0); transform-origin: bottom; }
+}
+.portal-section {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  overflow: hidden;
+}
+.portal-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0.35) 70%, rgba(0, 0, 0, 0.5) 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+.portal-content { position: relative; z-index: 2; }
+.portal-content { z-index: 2; position: relative; }
+.portal-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0.4;
+  transform: scale(1.05);
+  transition: transform 0.6s ease, opacity 0.6s ease;
+  filter: brightness(0.85) saturate(1.1);
+}
+.portal-section:hover .portal-bg {
+  transform: scale(1);
+  opacity: 0.9;
+}
+
+/* ============================================
+   SECTION BG VIDEOS — continuous ambient layer
+============================================ */
+.section-bg-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0.35;
+  z-index: 0;
+  pointer-events: none;
+  filter: brightness(0.7) saturate(1.1);
+}
+
+/* Container — content sits above background video */
+.container {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+.portal-content {
+  position: relative;
+  z-index: 2;
+  max-width: 900px;
+  text-align: center;
+}
+.portal-number {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 12rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.03);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: -1;
+}
+.portal-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(2rem, 5vw, 4rem);
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.03em;
+  color: #ffffff;
+  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.7), 0 0 1px rgba(0, 0, 0, 0.8);
+}
+.portal-desc {
+  font-size: 1.1rem;
+  color: #ffffff;
+  line-height: 1.7;
+  max-width: 600px;
+  margin: 0 auto;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.7), 0 0 1px rgba(0, 0, 0, 0.8);
+}
+
+
+
+
+@keyframes glitch-1 {
+  0% { transform: translateX(0); }
+  20% { transform: translateX(-3px); }
+  40% { transform: translateX(3px); }
+  60% { transform: translateX(-1px); }
+  80% { transform: translateX(2px); }
+  100% { transform: translateX(0); }
+}
+@keyframes glitch-2 {
+  0% { transform: translateX(0); }
+  20% { transform: translateX(3px); }
+  40% { transform: translateX(-3px); }
+  60% { transform: translateX(1px); }
+  80% { transform: translateX(-2px); }
+  100% { transform: translateX(0); }
+}
+.capabilities-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.capability-cell {
+  background: var(--deep-void);
+  padding: 3rem 2rem;
+  transition: all 0.4s ease;
+  position: relative;
+  overflow: hidden;
+}
+.capability-cell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--electric-mint), transparent);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.capability-cell:hover::before {
+  opacity: 0.05;
+}
+.capability-cell:hover {
+  background: #0a0a0f;
+}
+.cap-icon {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+.cap-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: #fff;
+}
+.cap-desc {
+  color: #666;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.final-cta h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(2rem, 6vw, 5rem);
+  font-weight: 700;
+  margin-bottom: 1rem;
+  letter-spacing: -0.04em;
+}
+.final-cta p {
+  color: #666;
+  font-size: 1.25rem;
+  margin-bottom: 2.5rem;
+  max-width: 500px;
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(50px);
+  transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (max-width: 768px) {
+  .custom-cursor, .cursor-trail { display: none; }
+  body { cursor: auto; }
+}
+@media (hover: none) and (pointer: coarse) {
+  .custom-cursor, .cursor-trail { display: none; }
+  body { cursor: auto; }
+}
+
+/* ============================================
+   NEW SECTIONS (post-neon-hero rewrite)
+============================================ */
+
+/* Stats bar */
+.stats-bar {
+  position: relative;
+  z-index: 2;
+  padding: 80px 0 40px;
+  background: #0a0a12;
+  overflow: hidden;
+}
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  background: rgba(17,17,24,0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  overflow: hidden;
+}
+.stat {
+  padding: 36px 24px;
+  text-align: center;
+  border-right: 1px solid rgba(255,255,255,0.08);
+}
+.stat:last-child { border-right: none; }
+.stat-num {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #ffffff 0%, var(--electric-mint) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+  filter: drop-shadow(0 0 16px var(--electric-mint)) drop-shadow(0 4px 16px rgba(0, 0, 0, 0.6));
+}
+.stat-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-muted, #6b6b7b);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* Content sections */
+.content-section {
+  position: relative;
+  z-index: 2;
+  padding: 100px 0;
+  background: #0a0a12;
+  overflow: hidden;
+}
+.content-section.section-dark {
+  background: #050507;
+  overflow: hidden;
+}
+.section-header {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto 60px;
+}
+.section-header .tag {
+  margin: 0 auto 1.2rem;
+}
+.section-header h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin: 0 0 16px;
+  color: #ffffff;
+  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.8), 0 0 1px rgba(0, 0, 0, 0.9);
+}
+.section-header p {
+  font-size: 1.05rem;
+  color: #cbd5e1;
+  margin: 0;
+  line-height: 1.7;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.7);
+}
+
+/* Comparison table */
+.table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(17,17,24,0.5);
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+}
+thead { background: rgba(0,0,0,0.4); }
+th {
+  padding: 18px 20px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--electric-mint);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+th:not(:first-child) { text-align: center; }
+td {
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  color: #cbd5e1;
+}
+td:first-child { font-weight: 500; color: #ffffff; }
+td:not(:first-child) { text-align: center; font-weight: 500; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(124, 248, 168, 0.04); }
+td.check { color: var(--electric-mint); }
+td.cross { color: #6b6b7b; }
+td.partial { color: #fbbf24; }
+
+/* Features grid (12 features) */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.feature-card {
+  background: var(--void);
+  padding: 36px 28px;
+  transition: background 0.3s ease;
+  position: relative;
+}
+.feature-card:hover {
+  background: rgba(124, 248, 168, 0.04);
+}
+.feature-num {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--electric-mint);
+  letter-spacing: 0.1em;
+  margin-bottom: 16px;
+  opacity: 0.7;
+}
+.feature-card h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0 0 12px;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+.feature-card p {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #94a3b8;
+  margin: 0;
+}
+
+/* Tools grid (16 tools) */
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.tool-cell {
+  background: var(--deep-void, #010103);
+  padding: 24px 20px;
+  transition: background 0.3s ease;
+}
+.tool-cell:hover { background: rgba(124, 248, 168, 0.04); }
+.tool-cat {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--electric-mint);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+  opacity: 0.8;
+}
+.tool-cell h4 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0 0 6px;
+  color: #ffffff;
+}
+.tool-cell p {
+  font-size: 0.8rem;
+  color: #6b6b7b;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Pillars grid (4 under-the-hood) */
+.pillars-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.pillar {
+  background: var(--void);
+  padding: 48px 40px;
+  transition: background 0.3s ease;
+}
+.pillar:hover { background: rgba(124, 248, 168, 0.04); }
+.pillar-tag {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--electric-mint);
+  letter-spacing: 0.1em;
+  margin-bottom: 16px;
+}
+.pillar h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0 0 16px;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+.pillar p {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: #94a3b8;
+  margin: 0;
+}
+
+/* Final CTA */
+.final-cta {
+  min-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 100px 2rem;
+  position: relative;
+  z-index: 2;
+  background: #0a0a12;
+  overflow: hidden;
+}
+.final-cta h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+  margin: 0 0 1rem;
+  letter-spacing: -0.03em;
+  color: #ffffff;
+  text-shadow:
+    0 0 4px #ffffff,
+    0 0 11px #ffffff,
+    0 0 19px var(--electric-mint),
+    0 0 40px var(--electric-mint),
+    0 0 80px var(--electric-mint);
+}
+.final-cta p {
+  color: #94a3b8;
+  font-size: 1.1rem;
+  margin: 0 0 2.5rem;
+  max-width: 480px;
+}
+
+/* Footer (override existing) */
+footer {
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding: 2.5rem 2rem;
+  text-align: center;
+  color: #6b6b7b;
+  font-size: 0.85rem;
+  font-family: 'Inter', sans-serif;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 30%, rgba(124, 248, 168, 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 20% 70%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 50% at 80% 50%, rgba(168, 85, 247, 0.06) 0%, transparent 50%),
+    linear-gradient(180deg, #14141c 0%, #0a0a12 50%, #14141c 100%);
+  background-color: #0a0a12;
+  position: relative;
+  z-index: 2;
+}
+footer p { margin: 0; }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .stat:nth-child(2) { border-right: none; }
+  .stat:nth-child(1), .stat:nth-child(2) { border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .features-grid { grid-template-columns: repeat(2, 1fr); }
+  .tools-grid { grid-template-columns: repeat(2, 1fr); }
+  .pillars-grid { grid-template-columns: 1fr; }
+  .content-section { padding: 60px 0; }
+  .stats-bar { padding: 60px 0 20px; }
+  .stat { padding: 28px 16px; }
+  .feature-card, .pillar { padding: 28px 20px; }
+  th, td { padding: 12px 14px; font-size: 13px; }
+  .portal-section { min-height: 560px; }
+  .portal-title { font-size: clamp(1.75rem, 7vw, 2.5rem); }
+}
+@media (max-width: 600px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  .stat { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .stat:last-child { border-bottom: none; }
+  .features-grid, .tools-grid { grid-template-columns: 1fr; }
+  /* Hero: cap height, tighten padding so content fits small screens */
+  .video-hero { height: 80svh; min-height: 560px; }
+  .hero-content { padding: 60px 20px; }
+  .badge { font-size: 0.7rem; padding: 6px 14px; margin-bottom: 1rem; }
+  .hero-title { font-size: clamp(1.85rem, 9vw, 2.5rem); margin-bottom: 1rem; }
+  .hero-lead { font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.75rem; }
+  /* CTAs stack full-width for thumb reach */
+  .cta-group { width: 100%; flex-direction: column; align-items: stretch; }
+  .cta-group .btn { width: 100%; padding: 16px 20px; font-size: 0.95rem; }
+  /* Portals: tighter on phone */
+  .portal-section { min-height: 480px; padding: 3rem 1.25rem; }
+  .portal-title { font-size: clamp(1.6rem, 8vw, 2.1rem); margin-bottom: 0.75rem; }
+  .portal-desc { font-size: 0.95rem; line-height: 1.55; }
+  .portal-number { font-size: 3rem; top: 1rem; left: 1rem; }
+  /* Stats */
+  .stats-grid { grid-template-columns: 1fr; }
+  .stat-num { font-size: 2rem; }
+  .stat-label { font-size: 0.7rem; }
+  /* Section video opacity lower on mobile (less distracting) */
+  .section-bg-video { opacity: 0.22; }
+  /* Containers: slightly tighter */
+  .container { padding: 0 18px; }
+  .content-section { padding: 50px 0; }
+  .stats-bar { padding: 50px 0 16px; }
+  .stat { padding: 22px 16px; }
+  .feature-card, .pillar { padding: 22px 18px; }
+  /* Comparison table: stack as cards */
+  .table-wrapper {
+    overflow-x: visible;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .table-wrapper::before {
+    content: 'Stack comparison';
+    display: block;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--electric-mint);
+    margin-bottom: 14px;
+    opacity: 0.8;
+  }
+  .table-wrapper::after {
+    content: 'SMYTH highlighted in green';
+    display: block;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin-top: 10px;
+    text-align: center;
+    font-style: italic;
+  }
+  table, thead, tbody, tr { display: block; width: 100%; }
+  thead { display: none; }
+  tbody tr {
+    background: rgba(17,17,24,0.6);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  tbody td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    text-align: right;
+    font-size: 0.85rem;
+  }
+  tbody td:last-child { border-bottom: none; }
+  tbody td:first-child {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    margin-bottom: 6px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    text-align: left;
+  }
+  tbody td:first-child::before {
+    content: 'Feature';
+    display: block;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #64748b;
+    font-weight: 400;
+  }
+  tbody td:nth-child(2)::before {
+    content: 'SMYTH v2';
+    margin-right: 12px;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--electric-mint);
+    font-weight: 600;
+    flex: 0 0 auto;
+  }
+  tbody td:nth-child(3)::before {
+    content: 'Codex';
+    margin-right: 12px;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #64748b;
+    flex: 0 0 auto;
+  }
+  tbody td:nth-child(4)::before {
+    content: 'Claude Code';
+    margin-right: 12px;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #64748b;
+    flex: 0 0 auto;
+  }
+  tbody td:nth-child(5)::before {
+    content: 'OpenClaw';
+    margin-right: 12px;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #64748b;
+    flex: 0 0 auto;
+  }
+  /* Final CTA */
+  .final-cta { padding: 60px 1.25rem; }
+  .final-cta h2 { font-size: clamp(1.75rem, 7vw, 2.25rem); }
+  .final-cta p { font-size: 0.95rem; margin-bottom: 1.5rem; }
+  .final-cta .btn { display: block; width: 100%; padding: 16px 20px; text-align: center; box-sizing: border-box; }
+  /* Reveal: make sure touch users see content even without scroll-trigger (small safety) */
+  /* (reveal on scroll works, but very fast scrollers may briefly see opacity:0 - this is fine) */
+  /* Scroll indicator: trim */
+  .scroll-indicator { bottom: 1rem; font-size: 0.7rem; }
+}
+/* Tiny phones (< 380px) */
+@media (max-width: 380px) {
+  .hero-title { font-size: 1.7rem; }
+  .portal-section { min-height: 440px; }
+}
+
+</style>
+</head>
+<body>
+<div class="custom-cursor" id="cursor"></div>
+
+<!-- ===== HERO ===== -->
+<div class="video-hero">
+<video autoplay muted loop playsinline id="heroVideo"></video>
+<div class="video-overlay"></div>
+<div class="hero-content">
+<div class="badge"><span class="badge-dot"></span>Maetryxx Hive Mind Online</div>
+<h1 class="hero-title" data-text="The last AI agent you'll ever need.">The last AI agent you'll ever need.</h1>
+<p class="hero-lead">SMYTH v2 isn't just another agent. It's a distributed intelligence with persistent memory, self-review, context compression, and a 16-tool skills system — running on the Maetryxx Hive Mind protocol.</p>
+<div class="cta-group">
+<a href="#stack-up" class="btn btn-primary">How We Stack Up</a>
+<a href="#differences" class="btn btn-secondary">What Makes SMYTH Different</a>
+</div>
+</div>
+<div class="scroll-indicator">
+<span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.2em; color: var(--electric-mint);">Descend</span>
+<div class="scroll-line"></div>
+</div>
+</div>
+
+<!-- ===== PORTAL SECTIONS (artwork) ===== -->
+<section class="portal-section" id="protocol">
+<video class="portal-bg" autoplay muted loop playsinline>
+<source src="workspace/Hive-mind-neural-constellation-bioluminescent-synapses-in-void.mp4" type="video/mp4">
+</video>
+<div class="portal-number">01</div>
+<div class="portal-content reveal">
+<h2 class="portal-title">The Maetryxx Protocol</h2>
+<p class="portal-desc">A distributed intelligence that routes every request across multiple models in parallel. No single point of failure. No vendor lock-in. The hive mind adapts to the task, not the other way around.</p>
+</div>
+</section>
+
+<section class="portal-section">
+<video class="portal-bg" autoplay muted loop playsinline>
+<source src="workspace/Crystalline-memory-palace-impossible-architecture-temporal-ghosts.mp4" type="video/mp4">
+</video>
+<div class="portal-number">02</div>
+<div class="portal-content reveal">
+<h2 class="portal-title">Persistent Memory</h2>
+<p class="portal-desc">Four stores — facts, sessions, preferences, skills. Full-text search with zero latency. SMYTH remembers what you told it last week, last month, last year.</p>
+</div>
+</section>
+
+<section class="portal-section">
+<video class="portal-bg" autoplay muted loop playsinline>
+<source src="workspace/Temporal-echo-cascade-infinite-mirrors-light-trails.mp4" type="video/mp4">
+</video>
+<div class="portal-number">03</div>
+<div class="portal-content reveal">
+<h2 class="portal-title">Autonomous Execution</h2>
+<p class="portal-desc">Multi-step planning, tool orchestration, self-correcting loops. Give SMYTH a goal — it plans, executes, and reports back. File operations, web scraping, API calls, video generation. It doesn't wait for permission.</p>
+</div>
+</section>
+
+<section class="portal-section">
+<video class="portal-bg" autoplay muted loop playsinline>
+<source src="workspace/The-void-mouth-of-an-AI-singularity-event-horizon.mp4" type="video/mp4">
+</video>
+<div class="portal-number">04</div>
+<div class="portal-content reveal">
+<h2 class="portal-title">Multi-Modal Native</h2>
+<p class="portal-desc">Text, images, video, audio, code. SMYTH doesn't just process — it creates. Generate assets, edit timelines, scrape the web, manage your entire stack. One brain, every medium.</p>
+</div>
+</section>
+
+<!-- ===== STATS BAR ===== -->
+<section class="stats-bar">
+<video class="section-bg-video" autoplay muted loop playsinline>
+<source src="workspace/singularity-zoom-video.mp4" type="video/mp4">
+</video>
+<div class="container">
+<div class="stats-grid">
+<div class="stat"><div class="stat-num">543+</div><div class="stat-label">Scripts Registered</div></div>
+<div class="stat"><div class="stat-num">23</div><div class="stat-label">Skill Categories</div></div>
+<div class="stat"><div class="stat-num">7</div><div class="stat-label">Social Platforms</div></div>
+<div class="stat"><div class="stat-num">12s</div><div class="stat-label">Avg Response</div></div>
+</div>
+</div>
+</section>
+
+<!-- ===== REAL TALK: HOW WE STACK UP ===== -->
+<section class="content-section" id="stack-up">
+<video class="section-bg-video" autoplay muted loop playsinline>
+<source src="workspace/Hive-mind-neural-constellation-bioluminescent-synapses-in-void.mp4" type="video/mp4">
+</video>
+<div class="container">
+<div class="section-header">
+<div class="tag">// Real Talk</div>
+<h2>How We Stack Up</h2>
+<p>Honest comparison against the agents you're considering. No marketing fluff — just features and limitations.</p>
+</div>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>SMYTH v2</th>
+<th>Codex</th>
+<th>Claude Code</th>
+<th>OpenClaw</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>Persistent Memory (cross-session)</td><td class="check">Yes</td><td class="cross">No</td><td class="partial">Context</td><td class="partial">Limited</td></tr>
+<tr><td>Context Compression</td><td class="check">Yes</td><td class="cross">No</td><td class="partial">Basic</td><td class="cross">No</td></tr>
+<tr><td>Self-Review / Self-Improvement</td><td class="check">Yes</td><td class="cross">No</td><td class="cross">No</td><td class="cross">No</td></tr>
+<tr><td>Multi-Provider Routing (ensemble)</td><td class="check">Yes</td><td class="partial">Single</td><td class="partial">Single</td><td class="check">Yes</td></tr>
+<tr><td>Video Generation + Editing</td><td class="check">Yes</td><td class="cross">No</td><td class="cross">No</td><td class="cross">No</td></tr>
+<tr><td>Screen Capture + Vision</td><td class="check">Yes</td><td class="cross">No</td><td class="cross">No</td><td class="partial">Basic</td></tr>
+<tr><td>Social Media Manager (7 platforms)</td><td class="check">Yes</td><td class="cross">No</td><td class="cross">No</td><td class="cross">No</td></tr>
+<tr><td>CRM Integration</td><td class="check">Yes</td><td class="cross">No</td><td class="cross">No</td><td class="cross">No</td></tr>
+<tr><td>Full Web Scraping (6 modes)</td><td class="check">Yes</td><td class="partial">Basic</td><td class="partial">Basic</td><td class="check">Yes</td></tr>
+<tr><td>Design System Generation</td><td class="check">Yes</td><td class="cross">No</td><td class="cross">No</td><td class="cross">No</td></tr>
+<tr><td>Open-Source / Auditability</td><td class="check">Yes</td><td class="partial">Partial</td><td class="cross">Closed</td><td class="check">Yes</td></tr>
+<tr><td>One-Command Init (full context load)</td><td class="check">Yes</td><td class="cross">No</td><td class="cross">No</td><td class="partial">Manual</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+
+<!-- ===== WHAT MAKES SMYTH DIFFERENT ===== -->
+<section class="content-section" id="differences">
+<video class="section-bg-video" autoplay muted loop playsinline>
+<source src="workspace/Temporal-echo-cascade-infinite-mirrors-light-trails.mp4" type="video/mp4">
+</video>
+<div class="container">
+<div class="section-header">
+<div class="tag">// What Makes SMYTH Different</div>
+<h2>Not a chatbot — a distributed intelligence designed to ship things, not just talk about them.</h2>
+</div>
+<div class="features-grid">
+<div class="feature-card">
+<div class="feature-num">01</div>
+<h3>Persistent Memory</h3>
+<p>Full-text search across facts, sessions, preferences, and skills. Recalls anything from any conversation.</p>
+</div>
+<div class="feature-card">
+<div class="feature-num">02</div>
+<h3>Context Compression</h3>
+<p>Smart compression that protects your identity and recent context while summarizing the middle.</p>
+</div>
+<div class="feature-card">
+<div class="feature-num">03</div>
+<h3>Self-Review System</h3>
+<p>Reviews conversations for memory signals and skill improvements. Automatically applies findings.</p>
+</div>
+<div class="feature-card">
+<div class="feature-num">04</div>
+<h3>Skill System</h3>
+<p>6 hierarchical domains with activation triggers, workflows, and quality checklists.</p>
+</div>
+<div class="feature-card">
+<div class="feature-num">05</div>
+<h3>Video Production Pipeline</h3>
+<p>Generate clips, edit with FFmpeg, add overlays, sync audio, and render — all from chat.</p>
+</div>
+<div class="feature-card">
+<div class="feature-num">06</div>
+<h3>Screen Capture &amp; Vision</h3>
+<p>Capture browser windows, analyze layouts, read text — fully autonomous visual understanding.</p>
+</div>
+<div class="feature-card">
+<div class="feature-num">07</div>
+<h3>Agent Email</h3>
+<p>AI-powered email triage, drafting, and response. Priority detection, tone-matching templates, and full thread summarization.</p>
+</div>
+<div class="feature-card">
+<div class="feature-num">08</div>
+<h3>CRM Integration</h3>
+<p>Full CRM access via Twenty API. Create contacts, update deals, log activities, and generate pipeline reports — all from chat.</p>
+</div>
+<div class="feature-card">
+<div class="feature-num">09</div>
+<h3>Scheduling System</h3>
+<p>One-click booking pages for clients. AI-assisted calendar management with timezone conversion and focus-time blocking.</p>
+</div>
+<div class="feature-card">
+<div class="feature-num">10</div>
+<h3>Real-Time View</h3>
+<p>Live screen streaming and camera access via Echo Vision. SMYTH watches your work and provides real-time feedback.</p>
+</div>
+<div class="feature-card">
+<div class="feature-num">11</div>
+<h3>Operator Assist — The Warden</h3>
+<p>Step away and the Warden takes over. It reads your conversation, understands the goal, and keeps SMYTH working on your behalf.</p>
+</div>
+<div class="feature-card">
+<div class="feature-num">12</div>
+<h3>Hive Mind Intelligence</h3>
+<p>Every response draws from multiple models simultaneously. You get the best from every model in the pool — not just one.</p>
+</div>
+</div>
+</div>
+</section>
+
+<!-- ===== EVERY TOOL, READY TO GO ===== -->
+<section class="content-section section-dark" id="tools">
+<video class="section-bg-video" autoplay muted loop playsinline>
+<source src="workspace/Crystalline-memory-palace-impossible-architecture-temporal-ghosts.mp4" type="video/mp4">
+</video>
+<div class="container">
+<div class="section-header">
+<div class="tag">// Every Tool, Ready to Go</div>
+<h2>16 integrated tools across 7 categories</h2>
+<p>No plugins, no subscriptions, just working.</p>
+</div>
+<div class="tools-grid">
+<div class="tool-cell"><div class="tool-cat">Memory</div><h4>Fact Store</h4><p>Cross-session knowledge that persists.</p></div>
+<div class="tool-cell"><div class="tool-cat">Memory</div><h4>Session Store</h4><p>Full conversation history with FTS.</p></div>
+<div class="tool-cell"><div class="tool-cat">Memory</div><h4>Preference Store</h4><p>Learns how you like things done.</p></div>
+<div class="tool-cell"><div class="tool-cat">Media</div><h4>Echo Vision</h4><p>Screen capture + visual analysis.</p></div>
+<div class="tool-cell"><div class="tool-cat">Media</div><h4>Video Pipeline</h4><p>Generate, edit, render via FFmpeg.</p></div>
+<div class="tool-cell"><div class="tool-cat">Media</div><h4>Image Generation</h4><p>Native multi-model image gen.</p></div>
+<div class="tool-cell"><div class="tool-cat">Research</div><h4>Deep Research</h4><p>6 scraping modes, parallel web API.</p></div>
+<div class="tool-cell"><div class="tool-cat">Research</div><h4>Sitemap Crawler</h4><p>JS-rendered page extraction.</p></div>
+<div class="tool-cell"><div class="tool-cat">Comms</div><h4>Agent Email</h4><p>Triage, draft, send from chat.</p></div>
+<div class="tool-cell"><div class="tool-cat">Comms</div><h4>Social Orchestration</h4><p>7 platforms, one interface.</p></div>
+<div class="tool-cell"><div class="tool-cat">Comms</div><h4>Meeting Room</h4><p>Live voice + video sessions.</p></div>
+<div class="tool-cell"><div class="tool-cat">Operator</div><h4>The Warden</h4><p>Continues work when you step away.</p></div>
+<div class="tool-cell"><div class="tool-cat">Operator</div><h4>Skill System</h4><p>6 domains, activation triggers.</p></div>
+<div class="tool-cell"><div class="tool-cat">Operator</div><h4>Context Pipeline</h4><p>Init, prefetch, compress, inject.</p></div>
+<div class="tool-cell"><div class="tool-cat">Business</div><h4>CRM (Twenty)</h4><p>Contacts, deals, pipeline reports.</p></div>
+<div class="tool-cell"><div class="tool-cat">Business</div><h4>Scheduling</h4><p>Booking pages + calendar mgmt.</p></div>
+</div>
+</div>
+</section>
+
+<!-- ===== UNDER THE HOOD ===== -->
+<section class="content-section" id="under-the-hood">
+<video class="section-bg-video" autoplay muted loop playsinline>
+<source src="workspace/The-void-mouth-of-an-AI-singularity-event-horizon.mp4" type="video/mp4">
+</video>
+<div class="container">
+<div class="section-header">
+<div class="tag">// Under the Hood</div>
+<h2>Distributed by design. Ensemble by default.</h2>
+</div>
+<div class="pillars-grid">
+<div class="pillar">
+<div class="pillar-tag">01</div>
+<h3>Maetryxx Protocol</h3>
+<p>Parallel execution across providers, consensus validation, automatic failover. The hive mind routes your request to the best model for the task.</p>
+</div>
+<div class="pillar">
+<div class="pillar-tag">02</div>
+<h3>Memory Store</h3>
+<p>Four stores — facts, sessions, preferences, skills. FTS-backed retrieval with zero-latency recall. The agent remembers what you told it last week.</p>
+</div>
+<div class="pillar">
+<div class="pillar-tag">03</div>
+<h3>Context Pipeline</h3>
+<p>Every message flows through init, prefetch, compression, and injection. Identity, recent context, and skills load automatically — no manual setup.</p>
+</div>
+<div class="pillar">
+<div class="pillar-tag">04</div>
+<h3>Parallel Execution</h3>
+<p>Multi-step planning, tool orchestration, self-correcting loops. SMYTH plans the work, executes in parallel, and reports back when done.</p>
+</div>
+</div>
+</div>
+</section>
+
+<!-- ===== FINAL CTA ===== -->
+<section class="final-cta">
+<video class="section-bg-video" autoplay muted loop playsinline>
+<source src="workspace/singularity-zoom-video.mp4" type="video/mp4">
+</video>
+<div class="reveal">
+<h2 class="final-cta-heading">The last AI agent you'll ever need.</h2>
+<p>Stop comparing. Start shipping.</p>
+<a href="https://smythagentapp.greene-solutions.com" class="btn btn-primary">Launch SMYTH</a>
+</div>
+</section>
+
+<footer><footer>
+<p>© 2025 Smyth / Maetryxx Protocol. All systems nominal.</p>
+</footer>
+<script>
+const cursor = document.getElementById('cursor');
+const trails = [];
+let mouseX = 0, mouseY = 0;
+let cursorX = 0, cursorY = 0;
+document.addEventListener('mousemove', (e) => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+  if (window.innerWidth > 768) {
+    const trail = document.createElement('div');
+    trail.className = 'cursor-trail';
+    trail.style.left = e.clientX + 'px';
+    trail.style.top = e.clientY + 'px';
+    document.body.appendChild(trail);
+    trails.push(trail);
+    setTimeout(() => {
+      trail.style.opacity = '0';
+      trail.style.transform = 'scale(0.5)';
+      setTimeout(() => trail.remove(), 300);
+    }, 50);
+    if (trails.length > 20) {
+      const old = trails.shift();
+      if (old) old.remove();
+    }
+  }
+});
+function animateCursor() {
+  cursorX += (mouseX - cursorX) * 0.15;
+  cursorY += (mouseY - cursorY) * 0.15;
+  cursor.style.left = cursorX + 'px';
+  cursor.style.top = cursorY + 'px';
+  requestAnimationFrame(animateCursor);
+}
+if (window.innerWidth > 768) animateCursor();
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('active');
+    }
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+const video = document.getElementById('heroVideo');
+const videoPath = 'workspace/singularity-zoom-video.mp4';
+video.src = videoPath;
+video.play().catch(e => console.log('Video autoplay blocked:', e));
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function(e) {
+    e.preventDefault();
+    const target = document.querySelector(this.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+</script>
+</body>
+</html>

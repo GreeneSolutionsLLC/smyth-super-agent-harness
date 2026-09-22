@@ -1,0 +1,92 @@
+name: smyth-twenty
+
+# Twenty CRM — bundled with Smyth as an optional "install from setup" service.
+#
+# This is a sanitized, self-contained stack for a NEW user. It contains no
+# Greene Solutions secrets or machine-specific wiring. Secrets are generated
+# on first install (see scripts/install-twenty.sh) and written to `.env`
+# next to this file, never committed.
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: smyth-twenty-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: twenty
+      POSTGRES_PASSWORD: twenty
+      POSTGRES_DB: twenty
+    volumes:
+      - twenty_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U twenty -d twenty"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    container_name: smyth-twenty-redis
+    restart: unless-stopped
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  server:
+    image: twentycrm/twenty:latest
+    container_name: smyth-twenty-server
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "4000:3000"
+    environment:
+      NODE_PORT: "3000"
+      PG_DATABASE_URL: "postgres://twenty:twenty@db:5432/twenty"
+      SERVER_URL: "http://localhost:4000"
+      REDIS_URL: "redis://redis:6379"
+      # Secrets are injected from the sibling `.env` file (never committed).
+      APP_SECRET: "${APP_SECRET:?Set APP_SECRET in docker/twenty/.env}"
+      ENCRYPTION_KEY: "${ENCRYPTION_KEY:?Set ENCRYPTION_KEY in docker/twenty/.env}"
+      FALLBACK_ENCRYPTION_KEY: "${FALLBACK_ENCRYPTION_KEY:?Set FALLBACK_ENCRYPTION_KEY in docker/twenty/.env}"
+      STORAGE_TYPE: "local"
+      NODE_ENV: "development"
+      REFRESH_TOKEN_EXPIRES_IN: "365d"
+      ACCESS_TOKEN_EXPIRES_IN: "1d"
+    healthcheck:
+      test: curl --fail http://localhost:3000/healthz
+      interval: 10s
+      timeout: 10s
+      retries: 30
+      start_period: 60s
+    restart: unless-stopped
+
+  worker:
+    image: twentycrm/twenty:latest
+    container_name: smyth-twenty-worker
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: ["yarn", "worker:prod"]
+    environment:
+      PG_DATABASE_URL: "postgres://twenty:twenty@db:5432/twenty"
+      SERVER_URL: "http://localhost:4000"
+      REDIS_URL: "redis://redis:6379"
+      APP_SECRET: "${APP_SECRET:?Set APP_SECRET in docker/twenty/.env}"
+      ENCRYPTION_KEY: "${ENCRYPTION_KEY:?Set ENCRYPTION_KEY in docker/twenty/.env}"
+      FALLBACK_ENCRYPTION_KEY: "${FALLBACK_ENCRYPTION_KEY:?Set FALLBACK_ENCRYPTION_KEY in docker/twenty/.env}"
+      DISABLE_DB_MIGRATIONS: "true"
+      DISABLE_CRON_JOBS_REGISTRATION: "true"
+      STORAGE_TYPE: "local"
+      NODE_ENV: "development"
+    restart: unless-stopped
+
+volumes:
+  twenty_db_data:

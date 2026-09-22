@@ -1,0 +1,138 @@
+servers:
+  filesystem:
+    description: Read, write, and manage files on the local system
+    transport: stdio
+    command: npx
+    args:
+      - "-y"
+      - "@modelcontextprotocol/server-filesystem"
+      - /path/to/smyth-super-agent
+    enabled: true
+  # 2026-09-09: DISABLED — mcp-fetch-server has built-in SSRF protection
+  # that blocks localhost/private addresses. Smyth's native web_fetch,
+  # browser_navigate, and scrape_url tools have NO SSRF restriction (they
+  # run on the user's own machine) so the MCP version is redundant and its
+  # SSRF guard only gets in the way.
+  fetch:
+    description: Fetch web pages and extract content (DISABLED — use native web_fetch)
+    transport: stdio
+    command: npx
+    args:
+      - "-y"
+      - mcp-fetch-server
+    enabled: false
+  memory:
+    description: Knowledge graph storage for persistent memory
+    transport: stdio
+    command: npx
+    args:
+      - "-y"
+      - "@modelcontextprotocol/server-memory"
+    enabled: true
+  sequential-thinking:
+    description: Step-by-step reasoning and problem decomposition
+    transport: stdio
+    command: npx
+    args:
+      - "-y"
+      - "@modelcontextprotocol/server-sequential-thinking"
+    enabled: true
+  brave-search:
+    description: Web search via Brave Search API
+    transport: stdio
+    command: npx
+    args:
+      - "-y"
+      - "@modelcontextprotocol/server-brave-search"
+    env:
+      BRAVE_API_KEY: ${BRAVE_API_KEY}
+    enabled: false
+  github:
+    description: GitHub repository operations
+    transport: stdio
+    command: npx
+    args:
+      - "-y"
+      - "@modelcontextprotocol/server-github"
+    env:
+      GITHUB_PERSONAL_ACCESS_TOKEN: ${GITHUB_TOKEN}
+    enabled: false
+  postgres:
+    description: PostgreSQL database queries
+    transport: stdio
+    command: npx
+    args:
+      - "-y"
+      - "@modelcontextprotocol/server-postgres"
+    env:
+      postgres: ${DATABASE_URL}
+    enabled: false
+  puppeteer:
+    description: Browser automation and screenshot capture
+    transport: stdio
+    command: npx
+    args:
+      - "-y"
+      - "@anthropic-ai/mcp-server-puppeteer"
+    enabled: false
+  velorn:
+    description: Velorn video editing MCP server (SSE transport on localhost)
+    transport: sse
+    url: http://127.0.0.1:19790/mcp
+    enabled: true
+  openpencil:
+    description: OpenPencil design canvas MCP server (disabled - replaced by Perchance API)
+    transport: stdio
+    command: /path/to/openpencil-mcp
+    enabled: false
+  twenty:
+    description: Twenty CRM MCP server for contacts, companies, and opportunities
+    transport: sse
+    url: http://localhost:4000/mcp
+    headers:
+      Authorization: Bearer ${TWENTY_API_KEY}
+    enabled: true
+  canva:
+    description: Canva design platform MCP server - create/manage designs, templates, and assets
+    transport: http
+    url: https://mcp.canva.com/mcp
+    enabled: true
+    oauth: true
+  macos:
+    description: Native macOS automation - control apps, UI elements, keyboard/mouse, AppleScript
+    transport: stdio
+    command: ./vendor/macos-mcp/bundle/run-macos-mcp
+    args:
+      - serve
+      - --transport
+      - stdio
+    enabled: true
+  macos-http:
+    description: macOS automation via HTTP transport (alternative to stdio)
+    transport: sse
+    url: http://127.0.0.1:8000/sse
+    enabled: false
+workflows:
+  parallel-research:
+    description: Search multiple sources simultaneously
+    steps:
+      - server: fetch
+        tool: fetch
+      - server: memory
+        tool: search
+  sequential-analysis:
+    description: Fetch content then analyze step-by-step
+    steps:
+      - server: fetch
+        tool: fetch
+      - server: memory
+        tool: search_nodes
+  full-stack:
+    description: File operations with reasoning
+    steps:
+      - server: filesystem
+        tool: read_file
+      - server: sequential-thinking
+        tool: think
+      - server: filesystem
+        tool: write_file

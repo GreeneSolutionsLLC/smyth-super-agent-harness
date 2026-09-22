@@ -1,0 +1,1 @@
+Track C (setup wizard + runtime config) implemented by main. Files: src/app/setup/*, src/components/setup/*, src/lib/env.ts, src/lib/model-config.ts, src/app/api/setup/*, src/types/smyth-runtime.d.ts

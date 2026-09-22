@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SMYTH v2 — The World's Most Advanced AI Agent</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a1a;
+      --fg: #ffffff;
+      --muted: rgba(255, 255, 255, 0.5);
+      --muted-bg: #0d1628;
+      --accent: #0066ff;
+      --accent-dim: #003d99;
+      --accent-bright: #00ff88;
+      --border: rgba(0, 255, 136, 0.2);
+      --surface: #0d1628;
+      --gold: #ffd700;
+      --glow-blue: 0 0 20px rgba(0, 102, 255, 0.5);
+      --glow-cyan: 0 0 30px rgba(0, 255, 136, 0.5);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::selection {
+      background: var(--accent);
+      color: white;
+    }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+    /* ── Matrix Rain Canvas ── */
+    #matrix-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.15;
+    }
+
+    /* ── Layout ── */
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── Nav ── */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, var(--accent), var(--accent-bright));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .logo span {
+      font-weight: 300;
+      font-size: 14px;
+      -webkit-text-fill-color: var(--muted);
+      margin-left: 8px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      align-items: center;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.2s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--fg);
+    }
+
+    .btn-cta {
+      background: linear-gradient(135deg, var(--accent), #003d99);
+      color: white !important;
+      padding: 10px 24px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      box-shadow: var(--glow-blue);
+      text-decoration: none;
+    }
+
+    .btn-cta:hover {
+      box-shadow: 0 0 30px rgba(0, 102, 255, 0.6);
+      transform: translateY(-1px);
+    }
+
+    /* ── Hero ── */
+    .hero {
+      padding: 100px 0 60px;
+      text-align: center;
+      position: relative;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 255, 136, 0.1);
+      border: 1px solid var(--border);
+      padding: 6px 16px;
+      border-radius: 100px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent-bright);
+      margin-bottom: 24px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-bright);
+      box-shadow: 0 0 10px var(--accent-bright);
+    }
+
+    .hero h1 {
+      font-size: clamp(48px, 8vw, 88px);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+      margin-bottom: 16px;
+    }
+
+    .hero h1 .gradient {
+      background: linear-gradient(135deg, var(--accent), var(--accent-bright), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      background-size: 200% 200%;
+      animation: shimmer 4s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    .hero p {
+      font-size: clamp(18px, 2vw, 22px);
+      color: var(--muted);
+      max-width: 700px;
+      margin: 0 auto 40px;
+      line-height: 1.7;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #003d99);
+      color: white;
+      padding: 14px 36px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 16px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: var(--glow-blue);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 0 40px rgba(0, 102, 255, 0.6);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--fg);
+      padding: 14px 36px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 16px;
+      text-decoration: none;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--accent);
+      background: rgba(0, 102, 255, 0.1);
+      box-shadow: var(--glow-blue);
+    }
+
+    /* ── Stats ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      padding: 60px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .stat-card {
+      text-align: center;
+      padding: 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    .stat-number {
+      font-size: 36px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--accent-bright));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 500;
+      margin-top: 4px;
+    }
+
+    /* ── Comparison Table ── */
+    .comparison {
+      padding: 80px 0;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .section-header h2 {
+      font-size: clamp(32px, 4vw, 44px);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 12px;
+    }
+
+    .section-header p {
+      color: var(--muted);
+      font-size: 18px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .compare-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .compare-cell {
+      background: var(--surface);
+      padding: 16px;
+      text-align: center;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 52px;
+    }
+
+    .compare-cell.header {
+      font-weight: 700;
+      color: var(--accent-bright);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .compare-cell.feature-label {
+      text-align: left;
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--fg);
+      padding-left: 20px;
+    }
+
+    .compare-cell .check {
+      color: var(--accent-bright);
+      font-size: 18px;
+    }
+
+    .compare-cell .cross {
+      color: rgba(255, 100, 100, 0.6);
+      font-size: 18px;
+    }
+
+    .compare-cell .partial {
+      color: var(--gold);
+      font-size: 18px;
+    }
+
+    .compare-cell.smyth-highlight {
+      background: rgba(0, 102, 255, 0.08);
+      border-left: 2px solid var(--accent);
+      border-right: 2px solid var(--accent);
+    }
+
+    .smyth-label {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--accent), var(--accent-bright));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 800;
+    }
+
+    /* ── Features ── */
+    .features {
+      padding: 80px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 32px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-bright));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .feature-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px);
+      box-shadow: 0 10px 40px rgba(0, 102, 255, 0.15);
+    }
+
+    .feature-card:hover::before {
+      opacity: 1;
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: rgba(0, 102, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 16px;
+    }
+
+    .feature-card h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .feature-card p {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    /* ── Architecture ── */
+    .architecture {
+      padding: 80px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .arch-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    .arch-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .arch-card .emoji {
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+
+    .arch-card h4 {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .arch-card p {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    /* ── Capabilities ── */
+    .capabilities {
+      padding: 80px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .caps-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .cap-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .cap-item .cap-icon {
+      color: var(--accent-bright);
+      font-weight: 700;
+    }
+
+    /* ── Testimonials ── */
+    .testimonials {
+      padding: 80px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .testimonial-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+
+    .testimonial-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 32px;
+    }
+
+    .testimonial-card .quote {
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.8;
+      margin-bottom: 16px;
+      font-style: italic;
+    }
+
+    .testimonial-card .author {
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .testimonial-card .role {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .stars {
+      color: var(--gold);
+      letter-spacing: 2px;
+      margin-bottom: 12px;
+    }
+
+    /* ── CTA ── */
+    .cta-section {
+      padding: 100px 0;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .cta-section h2 {
+      font-size: clamp(32px, 4vw, 48px);
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+
+    .cta-section p {
+      color: var(--muted);
+      font-size: 18px;
+      max-width: 500px;
+      margin: 0 auto 32px;
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* ── Footer ── */
+    footer {
+      padding: 40px 0;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+
+    footer p {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    footer .footer-logo {
+      font-size: 18px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--accent-bright));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .features-grid { grid-template-columns: 1fr; }
+      .compare-grid { grid-template-columns: repeat(3, 1fr); font-size: 12px; }
+      .compare-cell.header { font-size: 11px; }
+      .arch-grid { grid-template-columns: repeat(2, 1fr); }
+      .caps-grid { grid-template-columns: 1fr; }
+      .testimonial-grid { grid-template-columns: 1fr; }
+      .hero { padding: 60px 0 40px; }
+      .nav-links { display: none; }
+    }
+
+    @media (max-width: 600px) {
+      .stats-row { grid-template-columns: 1fr; }
+      .compare-grid { grid-template-columns: 1fr; }
+      .arch-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── Glitch text effect ── */
+    .glitch {
+      position: relative;
+    }
+
+    .glitch::before,
+    .glitch::after {
+      content: attr(data-text);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .glitch::before {
+      color: var(--accent);
+      z-index: -1;
+      animation: glitch-offset 0.3s infinite linear alternate-reverse;
+    }
+
+    .glitch::after {
+      color: var(--accent-bright);
+      z-index: -2;
+      animation: glitch-offset2 0.2s infinite linear alternate-reverse;
+    }
+
+    @keyframes glitch-offset {
+      0% { transform: translate(-1px, 1px); }
+      100% { transform: translate(1px, -1px); }
+    }
+
+    @keyframes glitch-offset2 {
+      0% { transform: translate(2px, -1px); }
+      100% { transform: translate(-2px, 1px); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Matrix Rain Canvas -->
+<canvas id="matrix-canvas"></canvas>
+
+<!-- Nav -->
+<div class="container">
+  <nav>
+    <div class="logo">SMYTH <span>v2</span></div>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#comparison">Comparison</a>
+      <a href="#capabilities">Capabilities</a>
+      <a href="#arch">Architecture</a>
+      <a href="https://greene-solutions.com" target="_blank" class="btn-cta">Greene Solutions →</a>
+    </div>
+  </nav>
+</div>
+
+<!-- Hero -->
+<div class="container">
+  <div class="hero">
+    <div class="badge">
+      <span class="badge-dot"></span>
+      Now Available — Smyth v2
+    </div>
+    <h1>
+      The last<br>
+      <span class="gradient glitch" data-text="AI agent">AI agent</span><br>
+      you'll ever need.
+    </h1>
+    <p>
+      Memory that persists. Context that compresses. Skills that grow. 
+      Smyth v2 is the only agent built from the ground up with hierarchical memory, 
+      autonomous self-review, and a distributed intelligence protocol — leaving 
+      every other agent framework in the dust.
+    </p>
+    <div class="hero-actions">
+      <a href="#features" class="btn-primary">✦ See the difference</a>
+      <a href="https://greene-solutions.com" target="_blank" class="btn-secondary">Learn more →</a>
+    </div>
+  </div>
+</div>
+
+<!-- Stats -->
+<div class="container">
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-number">543+</div>
+      <div class="stat-label">Scripts in registry</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">23</div>
+      <div class="stat-label">Skill categories</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">7</div>
+      <div class="stat-label">Platform integrations</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">12s</div>
+      <div class="stat-label">Average response time</div>
+    </div>
+  </div>
+</div>
+
+<!-- Comparison -->
+<div class="container">
+  <div class="comparison" id="comparison">
+    <div class="section-header">
+      <h2>How <span class="gradient">Smyth v2</span> stacks up</h2>
+      <p>Every agent talks a big game. Here's the cold hard truth.</p>
+    </div>
+    <div class="compare-grid">
+      <div class="compare-cell header">Feature</div>
+      <div class="compare-cell header smyth-highlight">SMYTH v2</div>
+      <div class="compare-cell header">Codex</div>
+      <div class="compare-cell header">Claude Code</div>
+      <div class="compare-cell header">OpenClaw</div>
+
+      <div class="compare-cell feature-label">Hierarchical Memory</div>
+      <div class="compare-cell smyth-highlight"><span class="check">✓</span></div>
+      <div class="compare-cell"><span class="cross">✗</span></div>
+      <div class="compare-cell"><span class="cross">✗</span></div>
+      <div class="compare-cell"><span class="partial">◐</span></div>
+
+      <div class="compare-cell feature-label">Context Compression</div>
+      <div class="compare-cell smyth-highlight"><span class="check">✓</span></div>
+      <div class="compare-cell"><span class="cross">✗</span></div>
+      <div class="compare-cell"><span class="cross">✗</span></div>
+      <div class="compare-cell"><span class="cross">✗</span></div>
+
+      <div class="compare-cell feature-label">Self-Review / Learning</div>
+      <div class="compare-cell smyth-highlight"><span class="check">✓</span></div>
+      <div class="compare-cell"><span class="cross">✗</span></div>
+      <div class="compare-cell"><span class="partial">◐</span></div>
+      <div class="compare-cell"><span class="cross">✗</span></div>
+
+      <div class="compare-cell feature-label">Multi-Provider Routing</div>
+      <div class="compare-cell smyth-highlight"><span class="check">✓</span></div>
+      <div class="compare-cell"><span class="cross">✗</span></div>
+      <div class="compare-cell"><span class="partial">◐</span></div>
+      <div class="compare-cell"><span class="cross">✗</span></div>
+
+      <div class="compare-cell feature-label">Video Generation & Edit</div>
+      <div class="compare-cell smyth-highlight"><span class="check">✓</span></div>
+      <div class="compare-cell"><span class="cross">✗</span></div>
+      <div class="compare-cell"><span class="cross">✗</span></div>
+      <div class="compare-cell"><span class="cross">✗</span></div>
+
+      <div class="compare-cell feature-label">Real-Time Screen Vision</div>
+      <div class="compare-cell smyth-highlight"><span class="check">✓</span></div>
+      <div class="compare-cell"><span class="cross">✗</span></div>
+      <div class="compare-cell"><span class="cross">✗</span></div>
+      <div class="compare-cell"><span class="cross">✗</span></div>
+
+      <div class="compare-cell feature-label">7-Platform Social Manager</div>
+      <div class="compare-cell smyth-highlight"><span class="check">✓</span></div>
+      <div class="compare-cell"><span class="cross">✗</span></div>
+      <div class="compare-cell"><span class="cross">✗</span></div>
+      <div class="compare-cell"><span class="cross">✗</span></div>
+
+      <div class="compare-cell feature-label">CRM Integration</div>
+      <div class="compare-cell smyth-highlight"><span class="check">✓</span></div>
+      <div class="compare-cell"><span class="cross">✗</span></div>
+      <div class="compare-cell"><span class="cross">✗</span></div>
+      <div class="compare-cell"><span class="cross">✗</span></div>
+
+      <div class="compare-cell feature-label">Web Scraping Engine</div>
+      <div class="compare-cell smyth-highlight"><span class="check">✓</span></div>
+      <div class="compare-cell"><span class="partial">◐</span></div>
+      <div class="compare-cell"><span class="partial">◐</span></div>
+      <div class="compare-cell"><span class="cross">✗</span></div>
+
+      <div class="compare-cell feature-label">Design System Generation</div>
+      <div class="compare-cell smyth-highlight"><span class="check">✓</span></div>
+      <div class="compare-cell"><span class="cross">✗</span></div>
+      <div class="compare-cell"><span class="cross">✗</span></div>
+      <div class="compare-cell"><span class="cross">✗</span></div>
+
+      <div class="compare-cell feature-label">Open-Source Architecture</div>
+      <div class="compare-cell smyth-highlight"><span class="check">✓</span></div>
+      <div class="compare-cell"><span class="partial">◐</span></div>
+      <div class="compare-cell"><span class="cross">✗</span></div>
+      <div class="compare-cell"><span class="check">✓</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Features -->
+<div class="container">
+  <div class="features" id="features">
+    <div class="section-header">
+      <h2>What makes <span class="gradient">Smyth v2</span> different</h2>
+      <p>Not just another LLM wrapper. A distributed intelligence.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🧠</div>
+        <h3>Persistent Memory Engine</h3>
+        <p>Full-text search across facts, sessions, preferences, and skills. Learns from every interaction and surfaces relevant context automatically.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📦</div>
+        <h3>Smart Context Compression</h3>
+        <p>Protects critical context while compressing the middle. No token waste. No lost threads. Inspired by Hermes Agent's trajectory compressor, but built better.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔍</div>
+        <h3>Autonomous Self-Review</h3>
+        <p>Reviews conversations for memory signals, skill improvements, and behavioral patterns. Gets smarter after every session without human retraining.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🛠️</div>
+        <h3>Hierarchical Skill System</h3>
+        <p>6 domains with activation triggers, workflow checklists, and quality gates. Coding, research, design, video, social, business — each with its own playbook.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎬</div>
+        <h3>Full Video Production</h3>
+        <p>Generate, edit, composite, and render video — all from conversation. AI clip generation + FFmpeg compositing + OpenCut timeline editing in one pipeline.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">👁️</div>
+        <h3>Real-Time Screen Vision</h3>
+        <p>Echo Vision engine reads your screen in real time — layout, colors, text, UI elements. Not a screenshot, but structured observations. Like having eyes.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Capabilities -->
+<div class="container">
+  <div class="capabilities" id="capabilities">
+    <div class="section-header">
+      <h2>Every capability, <span class="gradient">ready now</span></h2>
+      <p>No plugins to install. No external APIs to configure. It just works.</p>
+    </div>
+    <div class="caps-grid">
+      <div class="cap-item"><span class="cap-icon">✦</span> Web search & deep research</div>
+      <div class="cap-item"><span class="cap-icon">✦</span> Image generation (Flux, SD3, Recraft)</div>
+      <div class="cap-item"><span class="cap-icon">✦</span> Video generation & editing</div>
+      <div class="cap-item"><span class="cap-icon">✦</span> Screen capture & vision</div>
+      <div class="cap-item"><span class="cap-icon">✦</span> Social media management (7 platforms)</div>
+      <div class="cap-item"><span class="cap-icon">✦</span> CRM (Twenty) contact & deal management</div>
+      <div class="cap-item"><span class="cap-icon">✦</span> Web scraping (static, JS, sitemap, API)</div>
+      <div class="cap-item"><span class="cap-icon">✦</span> Design system generation & templates</div>
+      <div class="cap-item"><span class="cap-icon">✦</span> File operations & script execution</div>
+      <div class="cap-item"><span class="cap-icon">✦</span> 543+ pre-built scripts in 23 categories</div>
+      <div class="cap-item"><span class="cap-icon">✦</span> Voice synthesis (Hume TTS)</div>
+      <div class="cap-item"><span class="cap-icon">✦</span> Multi-model routing & fallback</div>
+      <div class="cap-item"><span class="cap-icon">✦</span> Video timeline editing (OpenCut)</div>
+      <div class="cap-item"><span class="cap-icon">✦</span> Camera / webcam integration</div>
+      <div class="cap-item"><span class="cap-icon">✦</span> Operator mode for autonomous tasks</div>
+      <div class="cap-item"><span class="cap-icon">✦</span> Session recovery & persistence</div>
+    </div>
+  </div>
+</div>
+
+<!-- Architecture -->
+<div class="container">
+  <div class="architecture" id="arch">
+    <div class="section-header">
+      <h2>Built different <span class="gradient">under the hood</span></h2>
+      <p>Maetryxx Hive Mind protocol. Modular. Distributed. Unstoppable.</p>
+    </div>
+    <div class="arch-grid">
+      <div class="arch-card">
+        <div class="emoji">🧠</div>
+        <h4>Maetryxx Protocol</h4>
+        <p>Distributed intelligence pool routes across multiple models. No single point of failure. Always the best model for the job.</p>
+      </div>
+      <div class="arch-card">
+        <div class="emoji">💾</div>
+        <h4>Memory Store</h4>
+        <p>Hierarchical facts, sessions, preferences, and skills with full-text search. Cross-session recall without context bloat.</p>
+      </div>
+      <div class="arch-card">
+        <div class="emoji">🔄</div>
+        <h4>Context Pipeline</h4>
+        <p>Smart compression protects first 2 + last 6 turns. Auto-compacts when budget is tight. No token waste.</p>
+      </div>
+      <div class="arch-card">
+        <div class="emoji">⚡</div>
+        <h4>Parallel Execution</h4>
+        <p>Independent tasks run simultaneously. Web research + file operations + video generation — all at once.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Testimonials -->
+<div class="container">
+  <div class="testimonials">
+    <div class="section-header">
+      <h2>Trusted by <span class="gradient">builders</span></h2>
+    </div>
+    <div class="testimonial-grid">
+      <div class="testimonial-card">
+        <div class="stars">★★★★★</div>
+        <div class="quote">"Smyth v2's memory system is the first time I've felt like an AI actually remembers who I am between sessions. The context compression alone saves me hundreds of dollars in token costs every month."</div>
+        <div class="author">— Alex R.</div>
+        <div class="role">Founder, SaaS Startup</div>
+      </div>
+      <div class="testimonial-card">
+        <div class="stars">★★★★★</div>
+        <div class="quote">"We switched from Claude Code to Smyth for our video production pipeline. The ability to generate 14 clips, composite them with branding, and render in 49 seconds flat is unreal. Game changer."</div>
+        <div class="author">— Jordan T.</div>
+        <div class="role">Creative Director</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="container">
+  <div class="cta-section">
+    <h2>Ready to upgrade your <span class="gradient">agent?</span></h2>
+    <p>Smyth v2 is deployed on Greene Solutions infrastructure. Human + AI automation, built for the real world.</p>
+    <div class="cta-buttons">
+      <a href="https://greene-solutions.com" target="_blank" class="btn-primary">✦ Get started</a>
+      <a href="#comparison" class="btn-secondary">See how we compare</a>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<div class="container">
+  <footer>
+    <div class="footer-logo">SMYTH v2</div>
+    <p>Powered by <a href="https://greene-solutions.com" target="_blank" style="color: var(--accent); text-decoration: none;">Greene Solutions LLC</a> — Human + AI Automation</p>
+    <p style="margin-top: 6px; font-size: 12px;">&copy; 2026 Greene Solutions LLC. All rights reserved.</p>
+  </footer>
+</div>
+
+<script>
+// ── Matrix Rain Effect ──
+(function() {
+  const canvas = document.getElementById('matrix-canvas');
+  const ctx = canvas.getContext('2d');
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEF';
+  const fontSize = 14;
+  const columns = Math.floor(canvas.width / fontSize);
+  const drops = Array(columns).fill(1);
+
+  function draw() {
+    ctx.fillStyle = 'rgba(10, 10, 26, 0.05)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = '#00ff88';
+    ctx.font = fontSize + 'px monospace';
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = '#00ff88';
+
+    for (let i = 0; i < drops.length; i++) {
+      const char = chars[Math.floor(Math.random() * chars.length)];
+      ctx.fillText(char, i * fontSize, drops[i] * fontSize);
+
+      if (drops[i] * fontSize > canvas.height && Math.random() > 0.98) {
+        drops[i] = 0;
+      }
+      drops[i]++;
+    }
+    ctx.shadowBlur = 0;
+  }
+
+  setInterval(draw, 33);
+})();
+</script>
+
+</body>
+</html>
